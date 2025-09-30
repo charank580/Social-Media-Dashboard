@@ -28,3 +28,4 @@ In summary, this Social Media Dashboard project demonstrates the integration of 
 
 # OUTPUT:
 
+<img width="1536" height="1024" alt="Image" src="https://github.com/user-attachments/assets/c397f835-43bd-40b1-b13c-64bc3ca381cd" />
