@@ -25,3 +25,6 @@ Another key highlight of the project is the analytics dashboard. Using MongoDBâ€
 From a technical perspective, the backend is built with Node.js and Express.js, managing routes for user registration, posting content, liking, commenting, and analytics. MongoDB serves as the database to store all user and post information. Redis is connected through the ioredis client for publishing and subscribing to notification events. On the frontend, React.js provides a clean and modular interface with dedicated pages for the feed, chat, and analytics dashboard.
 
 In summary, this Social Media Dashboard project demonstrates the integration of multiple modern web technologies into a single working prototype. It provides user profiles with media uploads, real-time messaging, social interactions, a notification system powered by Redis, and an analytics dashboard. Even though it is a simplified version of real platforms, it successfully captures the essence of social networking applications and showcases the practical use of the MERN stack for building scalable, real-time, and user-friendly web apps.
+
+# OUTPUT:
+
