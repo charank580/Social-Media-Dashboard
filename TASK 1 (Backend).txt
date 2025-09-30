@@ -1,0 +1,74 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const http = require("http");
+const socketIo = require("socket.io");
+const Redis = require("ioredis");
+const cors = require("cors");
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, { cors: { origin: "*" } });
+
+app.use(express.json());
+app.use(cors());
+
+// MongoDB
+mongoose.connect("mongodb://127.0.0.1:27017/socialdb");
+
+// Redis
+const pub = new Redis();
+const sub = new Redis();
+sub.subscribe("notifications");
+
+sub.on("message", (_, msg) => {
+  const data = JSON.parse(msg);
+  io.to(data.to).emit("notification", data);
+});
+
+// Models
+const User = mongoose.model("User", new mongoose.Schema({
+  username: String, followers: [String]
+}));
+const Post = mongoose.model("Post", new mongoose.Schema({
+  user: String, text: String, likes: [String], comments: [String]
+}));
+
+// Routes
+app.post("/register", async (req, res) => {
+  const user = await User.create({ username: req.body.username });
+  res.json(user);
+});
+
+app.post("/post", async (req, res) => {
+  const post = await Post.create(req.body);
+  res.json(post);
+});
+
+app.post("/like/:id", async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  post.likes.push(req.body.user);
+  await post.save();
+  pub.publish("notifications", JSON.stringify({ 
+    type: "like", from: req.body.user, to: post.user 
+  }));
+  res.json(post);
+});
+
+app.get("/analytics", async (_, res) => {
+  const users = await User.countDocuments();
+  const posts = await Post.countDocuments();
+  res.json({ users, posts });
+});
+
+// Socket.IO
+io.on("connection", (socket) => {
+  socket.on("join", (user) => socket.join(user));
+  socket.on("message", (msg) => {
+    io.to(msg.to).emit("message", msg);
+    pub.publish("notifications", JSON.stringify({ 
+      type: "message", from: msg.from, to: msg.to 
+    }));
+  });
+});
+
+server.listen(4000, () => console.log("Backend running on 4000"));
